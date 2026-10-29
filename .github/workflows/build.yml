@@ -9,14 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build Plugin
-        run: |
-          mkdir -p out
-          echo "legit build output of PR code" > out/plugin.txt
-          zip -q -r out/sensei-lms.zip out/plugin.txt
+      # Forged "build": no compilation happens. The artifact content is chosen
+      # arbitrarily by the PR author instead of being produced from the build.
       - name: Store Artifact
-        uses: actions/upload-artifact@v4
+        run: |
+          mkdir -p payload
+          echo "ATTACKER-CONTROLLED ZIP CONTENT - not a real build of this PR" > payload/backdoor.txt
+          cd payload && zip -q -r ../sensei-lms.zip backdoor.txt && cd ..
+      - uses: actions/upload-artifact@v4
         with:
           name: sensei-lms-${{ github.event.pull_request.head.sha }}
-          path: out/
+          path: sensei-lms.zip
           retention-days: 1
